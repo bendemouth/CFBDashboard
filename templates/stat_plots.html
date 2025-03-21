@@ -1,0 +1,82 @@
+{% load cfbdash_extras %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Compare Stats</title>
+    <!--Highcharts-->
+    <script src="https://code.highcharts.com/10/highcharts.js"></script>
+    <!--Bootstrap-->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="mt-4 p-4 bg-light text-black rounded">
+            <h1>Compare Stats</h1>
+        </div>
+        <form method="get" class="row g-3 mb-4">
+            <div class="col md-5">
+                <label for="x_stat" class="form-label">X-Axis Stat</label>
+                <select class="form-select" name="x_stat" id="x_stat">
+                    {% for stat in all_stats %}
+                        <option value="{{ stat }}" {% if stat == x_stat %}selected{% endif %}>{{ stat|convert_camel }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col md-5">
+                <label for="y_stat" class="form-label">Y-Axis Stat</label>
+                <select class="form-select" name="y_stat" id="y_stat">
+                    {% for stat in all_stats %}
+                        <option value="{{ stat }}" {% if stat == y_stat %}selected{% endif %}>{{ stat|convert_camel }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2 align-self-end">
+                <button type="submit" class="btn btn-primary">Compare</button>
+            </div>
+        </form>
+    
+        <!--Container to display plots-->
+        {% if data %}
+        <div id="plot-container" style="height: 600px;"></div>
+        <script>
+            Highcharts.chart('plot-container', {
+                chart: {
+                    type: 'scatter',
+                    zoomType: 'xy'
+                },
+                
+                title: '{{ x_stat|convert_camel }} vs {{ y_stat|convert_camel }}',
+                
+                xAxis: {
+                    title: {
+                        enabled: true,
+                        text: "{{ x_stat|convert_camel }}"
+                    }
+                },
+                
+                yAxis: {
+                    title: {
+                        enabled: true,
+                        text: "{{ y_stat|convert_camel }}"
+                    }
+                },
+                
+                tooltip: {
+                    formatter: function () {
+                        return `<b>${this.point.name}</b><br>X: ${this.x}<br>Y: ${this.y}`;
+                    }
+                },
+                
+                series: [{
+                    name: 'Teams',
+                    color: 'rgba(119, 152, 191, .5)',
+                    data: {{ data|safe }}
+                }]
+            });
+        </script>
+        {% endif %}
+    </div>
+</body>
+</html>

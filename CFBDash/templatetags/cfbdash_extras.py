@@ -7,3 +7,7 @@ register = template.Library()
 def convert_camel(value):
     spaced = re.sub(r'(?<!^)(?=[A-Z])', ' ', value)
     return spaced.title()
+
+@register.filter
+def index(sequence, position):
+    return sequence[position]
